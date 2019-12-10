@@ -15,6 +15,8 @@ namespace SoloServ2
             pageName = "mainpage.html", 
             dataFileName = "data.txt",
             itemFileName = "item.html";
+
+
         static Page mainPage = new Page();
         static List<string> ToDo = new List<string>();
         static StreamReader dataInput;
