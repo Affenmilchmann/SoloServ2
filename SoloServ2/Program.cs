@@ -64,26 +64,11 @@ namespace SoloServ2
 
                 if (req.HttpMethod == "POST")
                 {
-                    byte[] t = new byte[Convert.ToInt32(req.ContentLength64)];
-                    req.InputStream.Read(t, 0, Convert.ToInt32(req.ContentLength64));
-                    string temp, name;
-
-                    temp = Encoding.ASCII.GetString(t);
-
-                    string[] tempArr = temp.Replace("+", " ").Split('=');
-
-                    if (tempArr.Length != 1) temp = tempArr[1];
-
-                    name = tempArr[0];
-
-                    if (temp != "") ToDo.Add(temp);
-
-                    int k;
-                    if (int.TryParse(name, out k)) ToDo.Remove(ToDo[k]);
+                    HttpHandler.Post(req, ToDo);
 
                     SaveToDo();
                 }
-                if (req.HttpMethod == "PUT")
+                if (req.HttpMethod == "PUT") //doesnt works
                 {
                     byte[] t = new byte[Convert.ToInt32(req.ContentLength64)];
                     req.InputStream.Read(t, 0, Convert.ToInt32(req.ContentLength64));
@@ -94,14 +79,7 @@ namespace SoloServ2
                     string[] tempArr = temp.Replace("+", " ").Split('=');
                 }
 
-
-                byte[] data = Encoding.ASCII.GetBytes(String.Format(mainPage.data, MakeHtml(ToDo)));
-                resp.ContentType = "text/html";
-                resp.ContentEncoding = Encoding.ASCII;
-                resp.ContentLength64 = data.LongLength;
-
-                await resp.OutputStream.WriteAsync(data, 0, data.Length);
-                resp.Close();
+                await HttpHandler.Get(resp, String.Format(mainPage.data, MakeHtml(ToDo))); //GET
             }
         }
 
@@ -112,6 +90,7 @@ namespace SoloServ2
             foreach (string str in ToDo) dataOutput.WriteLine(str);
             dataOutput.Close();
         }
+
         static public string MakeHtml(List<string> Input)
         {
             string inputHtml, outputHtml = "";
@@ -120,7 +99,7 @@ namespace SoloServ2
             inputHtml = File.ReadAllText(itemFileName);
             for (int i = 0; i < ToDo.Count(); i++)
                 outputHtml += String.Format(inputHtml, ToDo[i], Convert.ToString(i));
-           
+
             return outputHtml;
         }
     }
